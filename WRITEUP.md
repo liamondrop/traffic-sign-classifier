@@ -87,6 +87,23 @@ My final model results were:
 * validation set accuracy of 97.5%
 * test set accuracy of 95.3%
 
+### Confusion Matrix
+
+In order to truly understand exactly how the model performed, I decided to create a confusion matrix. When dealing with thousands of predictions across 43 discrete classes, this is a good way to grasp how well the model is performing, and perhaps more importantly, exactly where and how it misclassified its inputs.
+
+<img src="./examples/confusion-matrix.png"/>
+
+The y-axis represents the true class labels, and the x-axis represents the label predicted by the model. The diagonal from the top left to the box right represents the case where the model predicts correctly. Whenever the prediction does not match the true label, that is plotted somewhere outside that diagonal. Each time the model makes a prediction, the number in that square is incremented by one, giving us a count of exactly how many times a class was correctly or incorrectly predicted. Looking at the matrix, we can see for example that the "pedestrians" class (label 27) was correctly predicted 31 times in the test set.
+
+<img src="./examples/class-27-examples.png" />
+
+However, nearly as often as not, it was misclassified. 12 times, the model misclassified the sign as "beware of ice/snow" (label 30), and 13 times, it misclassified the sign as "traffic signals" (label 26). Looking at some examples of those signs, it's easy to see how it was confused, as the signs are visually similar.
+
+<img src="./examples/class-30-examples.png" /><br/>
+<img src="./examples/class-26-examples.png" /><br/>
+
+It's noteworthy that these were among some of the least represented classes in the training set. This suggests that balancing the number of training examples, perhaps by augmenting the examples that are less represented, might possibly improve the accuracy of the model overall.
+
 ### Testing the Model on New Images
 
 Using Google image search, I tried to select a few good representations of traffic signs to run through my model. It was more challenging than I would have thought to find interesting test cases. Nearly every image I found was shot with good lighting conditions and nearly always perfectly head on. Here are the best candidates I could come up with in my search (cropped and resized to 32x32 px), along with the preprocessed versions I actually ran through the model.
