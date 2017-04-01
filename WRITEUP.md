@@ -23,12 +23,14 @@ On the other hand, the class labeled 2 ("Speed limit (50km/h)") has 2010 example
 
 <img src="./examples/class-2-examples.png" />
 
-This begs the question, why the huge inequality? Is a driver in Germany really 10 times as likely to encounter a 50 km/h sign vs. a 20 km/h sign? However, I ultimately chose to keep leave that distribution unchanged, as it closely matches the dataset as a whole.
+This begs the question, why the huge inequality? Is a driver in Germany really 10 times as likely to encounter a 50 km/h sign vs. a 20 km/h sign?
+
+For this report, I ultimately chose to keep leave that distribution unchanged, as it closely matches the dataset as a whole. However, as will be shown further, this was probably a mistake, as we find that classes that are less represented tend to be misclassified more often.
 
 ---
 ## Designing and Testing a Convolutional Neural Net Model
 
-Prior to this project, I built a [Lenet-5](http://yann.lecun.com/exdb/lenet/) implementation. This used the following model architecture.
+Prior to this project, I built a [Lenet-5](http://yann.lecun.com/exdb/lenet/) implementation, which is a fairly simple model capable of performing very well on the MNIST handwriting sample dataset. This used the following model architecture.
 
 | Layer                   |     Description                               |
 |:-----------------------:|:---------------------------------------------:|
@@ -50,7 +52,7 @@ Training the data on this model yielded ~89% accuracy on the validation set and 
 
 Above is a random sampling of images before preprocessing. It's easy to see that some of these images are very dark and would be challenging for even a human to classify. So, the first step I took to improve this result was to preprocess the data in an attempt to better amplify the important features in the image.
 
-I experimented with a number of ways to process and normalize the data, such as running the images through a Laplacian filter to enhance the edges in the images and normalize the values. However, the model performed best with histogram equalization and normalizing the image values from -0.5 to 0.5. It is also worth noting that there was no apparent degradation in performance when converting the input images to a single grayscale channel from RGB.
+I experimented with a number of ways to process and normalize the data, such as running the images through a Laplacian filter to enhance the edges in the images and normalize the values. I obtained the best experimental performance with histogram equalization and normalizing the image values from -0.5 to 0.5. It is also worth noting that there was no apparent degradation in performance when converting the input images to a single grayscale channel from RGB.
 
 <img src="./examples/rand-gray-0.png" />
 
@@ -58,7 +60,7 @@ By applying histogram equalization to the images, which is conveniently handled 
 
 ### Improved Model Architecture
 
-In order to achieve better performance, I needed to build a better CNN model. I decided to build the model described by [Alex Staravoitau](http://navoshta.com/traffic-signs-classification/#model). This differs from a simple, strictly feed-forward model like LeNet-5 in that the convolved, pooled layers are branched off and fed into a flattened, fully connected layer, noting that each of these convolutions is first passed through an additional max-pooling proportional to their layer size. In order to prevent overfitting to the training data, I also applied a 50% dropout to the fully connected layers.
+In order to achieve better performance, it was clear I would need to build a better CNN model. After some research and experimentation, I decided to build the model described by [Alex Staravoitau](http://navoshta.com/traffic-signs-classification/#model). This differs from a simple, strictly feed-forward model like LeNet-5 in that the convolved, pooled layers are branched off and fed into a flattened, fully connected layer, noting that each of these convolutions is first passed through an additional max-pooling proportional to their layer size. In order to prevent overfitting to the training data, I also applied a 50% dropout to each of the fully connected layers.
 
 | Layer                   |     Description                               |
 |:-----------------------:|:---------------------------------------------:|
@@ -93,7 +95,7 @@ In order to truly understand exactly how the model performed, I decided to creat
 
 <img src="./examples/confusion-matrix.png"/>
 
-The y-axis represents the true class labels, and the x-axis represents the label predicted by the model. The diagonal from the top left to the box right represents the case where the model predicts correctly. Whenever the prediction does not match the true label, that is plotted somewhere outside that diagonal. Each time the model makes a prediction, the number in that square is incremented by one, giving us a count of exactly how many times a class was correctly or incorrectly predicted. Looking at the matrix, we can see for example that the "pedestrians" class (label 27) was correctly predicted 31 times in the test set.
+The y-axis represents the true class labels, and the x-axis represents the label predicted by the model. The diagonal from the top left to the bottom right represents the case where the model predicts correctly. Whenever the prediction does not match the true label, that is plotted somewhere outside that diagonal. Each time the model makes a prediction, the number in that square is incremented by one, giving us a count of exactly how many times a class was correctly or incorrectly predicted. Looking at the matrix, we can see for example that the "pedestrians" class (label 27) was correctly predicted 31 times in the test set.
 
 <img src="./examples/class-27-examples.png" />
 
@@ -143,6 +145,6 @@ At first glance, the 100 km/h Speed Limit sign seems to the human eye like a no 
 
 It's interesting to note that while the model was still 99.97% certain of its guess, this was the least confident of any of the guesses. The next most likely guess at 0.029% likelihood is a Stop sign, and behind that, at only 0.0001% likelihood is the correct prediction.
 
-When looking back at the data, I notice that the 50 km/h Speed Limit sign has 2,010 examples in the training set, which incidentally is the most represented class in the entire dataset. The 100 km/h Speed Limit sign only has 1,260 examples. So, a possible improvement to prediction accuracy could be made by ensuring each class is equally represented. This would, of course, greatly decrease the size of the dataset.
+When looking back at the data, I notice that the 50 km/h Speed Limit sign has 2,010 examples in the training set, which incidentally is the most represented class in the entire dataset. The 100 km/h Speed Limit sign only has 1,260 examples. So, again, a possible improvement to prediction accuracy could be made by ensuring each class is equally represented.
 
-In conclusion, I believe the model itself to be pretty robust. To get the accuracy above 99%, I think it necessary to augment the dataset, by ensuring all the classes are represented equally and by generating more skewed/partially cropped images.
+In conclusion, I believe the model itself to be pretty robust. To get the accuracy above 99%, I think it necessary to augment the dataset, by ensuring all the classes are represented equally.
